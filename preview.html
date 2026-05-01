@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EliseuTreiner</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(180deg,#020617,#0f172a);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+/* LOGO */
+.logo{
+    margin-top:15px;
+}
+.logo img{
+    width:100px;
+    border-radius:12px;
+}
+
+/* TITULO */
+h1{
+    margin:10px 0;
+    font-size:26px;
+    color:#22c55e;
+}
+
+/* CARD */
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:16px;
+    width:90%;
+    max-width:350px;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+/* BOTÕES */
+button{
+    width:100%;
+    padding:12px;
+    margin:5px 0;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.btn{
+    background:#1f2937;
+    color:#fff;
+}
+.btn:hover{
+    background:#374151;
+}
+
+.start{ background:#22c55e; }
+.stop{ background:#ef4444; }
+
+/* TIMER */
+.timer{
+    font-size:60px;
+    margin:15px 0;
+}
+
+/* RANK */
+.rank{
+    margin-top:15px;
+    font-size:14px;
+    text-align:left;
+}
+.rank p{
+    margin:5px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="logo">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCJLhrzf4W8DmfDT3hROgRXyNY8ZWTc1M5Vn2XMUtb9DIdBMYgz8DWkY0&s">
+</div>
+
+<h1>EliseuTreiner</h1>
+
+<div class="card">
+
+<button class="btn" onclick="addEx('Flexão')">Flexão</button>
+<button class="btn" onclick="addEx('Abdominal')">Abdominal</button>
+<button class="btn" onclick="addEx('Agachamento')">Agachamento</button>
+
+<div class="timer" id="timer">00:30</div>
+
+<button class="start" onclick="start()">INICIAR</button>
+<button class="stop" onclick="stop()">PARAR</button>
+<button class="btn" onclick="remover()">REMOVER EXERCÍCIO</button>
+
+<div class="rank" id="rank"></div>
+
+</div>
+
+<audio id="alarm">
+<source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
+</audio>
+
+<script>
+let tempo = 30;
+let intervalo;
+let exercicioAtual = "";
+let finalizado = false;
+
+/* LIBERAR SOM */
+document.body.addEventListener("click", ()=>{
+    let a = document.getElementById("alarm");
+    a.play().then(()=>{a.pause();a.currentTime=0;}).catch(()=>{});
+},{once:true});
+
+/* ADD */
+function addEx(nome){
+    exercicioAtual = nome;
+    tempo = 30;
+    finalizado = false;
+    clearInterval(intervalo);
+    updateTimer();
+}
+
+/* REMOVER */
+function remover(){
+    exercicioAtual = "";
+    tempo = 30;
+    clearInterval(intervalo);
+    updateTimer();
+}
+
+/* TIMER */
+function updateTimer(){
+    let m = String(Math.floor(tempo/60)).padStart(2,'0');
+    let s = String(tempo%60).padStart(2,'0');
+    document.getElementById("timer").innerText = `${m}:${s}`;
+}
+
+/* START */
+function start(){
+    if(!exercicioAtual) return alert("Escolha um exercício!");
+
+    clearInterval(intervalo);
+    intervalo = setInterval(()=>{
+        tempo--;
+        updateTimer();
+
+        if(tempo <= 0 && !finalizado){
+            finalizado = true;
+            clearInterval(intervalo);
+            tocarSom();
+            rank();
+        }
+    },1000);
+}
+
+/* STOP */
+function stop(){
+    clearInterval(intervalo);
+}
+
+/* SOM */
+function tocarSom(){
+    let audio = document.getElementById("alarm");
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
+}
+
+/* RANK */
+function rank(){
+    let r = document.getElementById("rank");
+    r.innerHTML += `<p>✅ ${exercicioAtual} concluído</p>`;
+}
+</script>
+
+</body>
+</html>
